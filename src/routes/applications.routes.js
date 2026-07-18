@@ -66,6 +66,34 @@ router.get("/", async (req, res, next) => {
   res.json(applications);
 });
 
+// GET /api/applications/by-job/:jobId?recruiterId=xxx — applicants for a job (recruiter-only)
+router.get("/by-job/:jobId", async (req, res, next) => {
+  const { jobId } = req.params;
+  const { recruiterId } = req.query;
+
+  if (!ObjectId.isValid(jobId)) {
+    return next(new ApiError(404, "Job not found"));
+  }
+  if (!recruiterId) {
+    return next(new ApiError(400, "recruiterId is required"));
+  }
+
+  const db = getDB();
+  const job = await db.collection("jobs").findOne({ _id: new ObjectId(jobId) });
+  if (!job) return next(new ApiError(404, "Job not found"));
+  if (job.recruiterId !== recruiterId) {
+    return next(new ApiError(403, "You do not own this job posting"));
+  }
+
+  const applicants = await db
+    .collection("applications")
+    .find({ jobId })
+    .sort({ appliedAt: -1 })
+    .toArray();
+
+  res.json(applicants);
+});
+
 // DELETE /api/applications/:id — withdraw an application
 router.delete("/:id", async (req, res, next) => {
   if (!ObjectId.isValid(req.params.id)) {
