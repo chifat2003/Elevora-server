@@ -22,6 +22,10 @@ const port = process.env.PORT;
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 
+app.get("/", (_req, res) => {
+  res.json({ status: "ok", service: "elevora-server", message: "API is running. See /api/* for endpoints." });
+});
+
 app.use("/api/health", healthRoutes);
 app.use("/api/jobs", jobsRoutes);
 app.use("/api/applications", applicationsRoutes);
