@@ -19,7 +19,20 @@ const aiRoutes = require("./src/routes/ai.routes");
 const app = express();
 const port = process.env.PORT;
 
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+const allowedOrigins = process.env.CLIENT_URL.split(",").map((origin) => origin.trim());
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get("/", (_req, res) => {
