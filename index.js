@@ -1,0 +1,33 @@
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+
+const { connectDB } = require("./src/config/db");
+const { notFoundHandler, errorHandler } = require("./src/middleware/errorHandler");
+const healthRoutes = require("./src/routes/health.routes");
+const jobsRoutes = require("./src/routes/jobs.routes");
+
+const app = express();
+const port = process.env.PORT;
+
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(express.json());
+
+app.use("/api/health", healthRoutes);
+app.use("/api/jobs", jobsRoutes);
+
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+async function start() {
+  await connectDB();
+  app.listen(port, () => {
+    console.log(`Elevora server listening on port ${port}`);
+  });
+}
+
+start().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
+});
