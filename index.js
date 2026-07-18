@@ -13,6 +13,8 @@ const blogPostsRoutes = require("./src/routes/blog-posts.routes");
 const testimonialsRoutes = require("./src/routes/testimonials.routes");
 const statsRoutes = require("./src/routes/stats.routes");
 const newsletterRoutes = require("./src/routes/newsletter.routes");
+const chatRoutes = require("./src/routes/chat.routes");
+const aiRoutes = require("./src/routes/ai.routes");
 
 const app = express();
 const port = process.env.PORT;
@@ -28,6 +30,8 @@ app.use("/api/blog-posts", blogPostsRoutes);
 app.use("/api/testimonials", testimonialsRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
