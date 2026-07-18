@@ -9,6 +9,10 @@ const healthRoutes = require("./src/routes/health.routes");
 const jobsRoutes = require("./src/routes/jobs.routes");
 const applicationsRoutes = require("./src/routes/applications.routes");
 const savedJobsRoutes = require("./src/routes/saved-jobs.routes");
+const blogPostsRoutes = require("./src/routes/blog-posts.routes");
+const testimonialsRoutes = require("./src/routes/testimonials.routes");
+const statsRoutes = require("./src/routes/stats.routes");
+const newsletterRoutes = require("./src/routes/newsletter.routes");
 
 const app = express();
 const port = process.env.PORT;
@@ -20,6 +24,10 @@ app.use("/api/health", healthRoutes);
 app.use("/api/jobs", jobsRoutes);
 app.use("/api/applications", applicationsRoutes);
 app.use("/api/saved-jobs", savedJobsRoutes);
+app.use("/api/blog-posts", blogPostsRoutes);
+app.use("/api/testimonials", testimonialsRoutes);
+app.use("/api/stats", statsRoutes);
+app.use("/api/newsletter", newsletterRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

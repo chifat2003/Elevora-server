@@ -5,7 +5,9 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "seed:jobs": "node scripts/seed-jobs.js"
+    "seed:jobs": "node scripts/seed-jobs.js",
+    "seed:blog-posts": "node scripts/seed-blog-posts.js",
+    "seed:testimonials": "node scripts/seed-testimonials.js"
   },
   "author": "",
   "license": "ISC",
