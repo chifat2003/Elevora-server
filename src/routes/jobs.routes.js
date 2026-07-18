@@ -21,6 +21,7 @@ router.get("/", async (req, res) => {
     experienceLevel,
     minSalary,
     maxSalary,
+    recruiterId,
     sort = "newest",
     page = "1",
     limit = "8",
@@ -32,6 +33,7 @@ router.get("/", async (req, res) => {
   if (type) filter.type = type;
   if (location) filter.location = { $regex: location, $options: "i" };
   if (experienceLevel) filter.experienceLevel = experienceLevel;
+  if (recruiterId) filter.recruiterId = recruiterId;
   if (minSalary || maxSalary) {
     filter.salaryMax = filter.salaryMax || {};
     if (minSalary) filter.salaryMax.$gte = Number(minSalary);

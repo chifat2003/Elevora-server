@@ -7,6 +7,8 @@ const { connectDB } = require("./src/config/db");
 const { notFoundHandler, errorHandler } = require("./src/middleware/errorHandler");
 const healthRoutes = require("./src/routes/health.routes");
 const jobsRoutes = require("./src/routes/jobs.routes");
+const applicationsRoutes = require("./src/routes/applications.routes");
+const savedJobsRoutes = require("./src/routes/saved-jobs.routes");
 
 const app = express();
 const port = process.env.PORT;
@@ -16,6 +18,8 @@ app.use(express.json());
 
 app.use("/api/health", healthRoutes);
 app.use("/api/jobs", jobsRoutes);
+app.use("/api/applications", applicationsRoutes);
+app.use("/api/saved-jobs", savedJobsRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
