@@ -1,6 +1,6 @@
 const express = require("express");
 const { getDB } = require("../config/db");
-const { getAnthropicClient } = require("../config/anthropic");
+const { callOpenRouter } = require("../config/openrouter");
 const { ApiError } = require("../middleware/errorHandler");
 
 const router = express.Router();
@@ -46,30 +46,43 @@ router.post("/stream", async (req, res, next) => {
     .find({ userId, conversationId })
     .sort({ createdAt: 1 })
     .toArray();
-  const apiMessages = history.map((m) => ({ role: m.role, content: m.content }));
+  const apiMessages = [
+    { role: "system", content: SYSTEM_PROMPT },
+    ...history.map((m) => ({ role: m.role, content: m.content })),
+  ];
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
   try {
-    const client = getAnthropicClient();
-    const stream = client.messages.stream({
-      model: "claude-opus-4-8",
-      max_tokens: 2048,
-      system: SYSTEM_PROMPT,
-      messages: apiMessages,
-    });
+    const upstream = await callOpenRouter({ messages: apiMessages, stream: true, maxTokens: 800 });
+    const reader = upstream.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let assistantText = "";
 
-    stream.on("text", (delta) => {
-      res.write(`data: ${JSON.stringify({ delta })}\n\n`);
-    });
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
 
-    const final = await stream.finalMessage();
-    const assistantText = final.content
-      .filter((block) => block.type === "text")
-      .map((block) => block.text)
-      .join("");
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith("data:")) continue;
+        const data = trimmed.slice(5).trim();
+        if (data === "[DONE]") continue;
+
+        const parsed = JSON.parse(data);
+        const delta = parsed.choices?.[0]?.delta?.content;
+        if (delta) {
+          assistantText += delta;
+          res.write(`data: ${JSON.stringify({ delta })}\n\n`);
+        }
+      }
+    }
 
     await chatMessages.insertOne({
       userId,
